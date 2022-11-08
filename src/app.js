@@ -88,6 +88,18 @@ app.post("/api/persons", morgan(":body"), (req, res) => {
     res.json(person);
 });
 
+// UPDATE NUMBER
+app.put("/api/persons/:id", morgan(":body"), (req, res) => {
+    const id = Number(req.params.id);
+    const body = req.body;
+    
+    const person = persons.find((p) => p.id === id);
+    if (!person) return res.status(404).end();
+    
+    const updatedPerson = { ...person, number: body.number };
+    persons = persons.map((p) => (p.id === id ? updatedPerson : p));
+    res.json(updatedPerson);
+});
 
 // DELETE ONE
 app.delete("/api/persons/:id", (req, res) => {
@@ -104,6 +116,6 @@ app.use((req, res) => {
 
 // LISTEN PORT 3001
 app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
-
-// https://fullstackopen.com/es/part3/node_js_y_express#ejercicios-3-7-3-8
+if(app.get('env') === 'development') {
+    console.log(`Server running on port ${PORT}`);
+}
