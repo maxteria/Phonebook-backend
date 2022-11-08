@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/", (req, res) => {
-    res.send("<h1>Phonebook API By Maxteria</h1>");
+    res.send("<h1>Phonebook API By Maxteria for fullstackopen course</h1>");
 });
 
 // GET INFO
