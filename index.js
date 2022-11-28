@@ -1,4 +1,3 @@
-
 require('dotenv').config()
 
 const express = require("express");
@@ -6,20 +5,23 @@ const app = express();
 const cors = require("cors");
 const morgan = require("morgan");
 
-
-const Person = require("./models/person.js");
-
-
 app.use(cors());
 app.use(express.json());
-app.use(morgan("tiny"));
+app.use(express.static("build"));
 
+const notFound = require('./middleware/notFound.js');
+const errorHandler = require('./middleware/errorHandler.js');
+
+app.use(morgan("tiny"));
 morgan.token("body", (req) => {
     return JSON.stringify(req.body);
 });
 
+const Person = require("./models/person.js");
+
 // GET root endpoint
 app.get("/", (req, res) => {
+    console.log("GET /");
     const html = `<h1>Phonebook API</h1>
     <p>Available endpoints:</p>
     <ul>
@@ -30,7 +32,7 @@ app.get("/", (req, res) => {
     res.send(html);
 });
 
-app.get("/api/", (req, res) => {
+app.get("/api", (req, res) => {
     const html = `<h1>Phonebook API</h1>
     <p>Available endpoints:</p>
     <ul>
@@ -46,9 +48,6 @@ app.get("/info", (req, res) => {
         res.send(
             `<p>Phonebook has into for ${persons.length} people</p><pre>${Date()}</pre>`
         );
-    }).catch((error) => {
-        console.log(error);
-        res.status(500).end();
     });
 });
 
@@ -115,10 +114,8 @@ app.delete("/api/persons/:id", (req, res) => {
     });
 });
 
-// UNKNOW ENDPOINT
-app.use((req, res) => {
-    res.status(404).send({ error: "unknown endpoint" });
-});
+app.use(notFound)
+app.use(errorHandler)
 
 // LISTEN PORT 3001
 const PORT = process.env.PORT || 3001
