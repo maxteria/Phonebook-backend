@@ -71,7 +71,7 @@ app.get("/api/persons/:id", (req, res) => {
 });
 
 // ADD PERSON
-app.post("/api/persons", morgan(":body"), (req, res) => {
+app.post("/api/persons", morgan(":body"), (req, res, next) => {
     const body = req.body;
     if (!body) return res.status(400).json({ error: "content missing" });
     if (!body.name) return res.status(400).json({ error: "name missing" });
@@ -81,9 +81,12 @@ app.post("/api/persons", morgan(":body"), (req, res) => {
         name: body.name,
         number: body.number,
     });
-    person.save().then((savedPerson) => {
-        res.json(savedPerson);
-    });
+    
+    person
+    .save()
+    .then(savedPerson => savedPerson.toJSON())
+    .then(savedAndFormattedNote => res.json(savedAndFormattedNote))
+    .catch(error => next(error));
 });
 
 // UPDATE NUMBER
